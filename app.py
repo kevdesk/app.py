@@ -81,7 +81,7 @@ section[data-testid="stSidebar"] {
 # SIDEBAR - MENÚ
 # --------------------------------------------------
 with st.sidebar:
-    st.markdown("### Menú")
+    st.markdown("### Danper")
 
     # Gestión Agrícola (solo muestra submenú)
     st.markdown("<div class='menu-btn'>", unsafe_allow_html=True)
