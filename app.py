@@ -12,45 +12,41 @@ st.set_page_config(
 # --------------------------------------------------
 # SESSION STATE
 # --------------------------------------------------
-if "menu_padre" not in st.session_state:
-    st.session_state.menu_padre = False
+if "mostrar_submenu" not in st.session_state:
+    st.session_state.mostrar_submenu = False
 
-if "menu_hijo" not in st.session_state:
-    st.session_state.menu_hijo = None
+if "opcion_activa" not in st.session_state:
+    st.session_state.opcion_activa = None
 
 # --------------------------------------------------
 # ESTILOS
 # --------------------------------------------------
 st.markdown("""
 <style>
-/* Sidebar rojo corporativo */
+/* Sidebar rojo */
 section[data-testid="stSidebar"] {
     background-color: #c81d11;
 }
 
-/* Texto sidebar */
-section[data-testid="stSidebar"] * {
-    color: white;
-    font-weight: 600;
-}
-
-/* Botón menú */
+/* Botón blanco menú */
 .menu-btn button {
-    background-color: transparent !important;
+    background-color: white !important;
+    color: black !important;
+    border-radius: 6px !important;
     border: none !important;
-    text-align: left;
-    font-size: 16px;
+    font-weight: 600;
     padding: 10px 12px;
+    text-align: left;
 }
 
-/* Submenú activo */
+/* Item activo amarillo */
 .menu-activo {
     background-color: #f4c430;
-    color: black !important;
+    color: black;
     padding: 10px 12px;
     border-radius: 6px;
     font-weight: 700;
-    margin-left: 10px;
+    margin-top: 6px;
 }
 
 /* Botones generales */
@@ -76,21 +72,21 @@ section[data-testid="stSidebar"] * {
 """, unsafe_allow_html=True)
 
 # --------------------------------------------------
-# SIDEBAR - MENÚ NAVEGADOR
+# SIDEBAR - MENÚ
 # --------------------------------------------------
 with st.sidebar:
-    st.markdown("## 🌱 Menú")
+    st.markdown("### Menú")
 
-    # BOTÓN PADRE (siempre visible)
+    # BOTÓN GESTIÓN AGRÍCOLA (siempre visible)
     st.markdown("<div class='menu-btn'>", unsafe_allow_html=True)
     if st.button("Gestión Agrícola", use_container_width=True):
-        st.session_state.menu_padre = True
+        st.session_state.mostrar_submenu = True
     st.markdown("</div>", unsafe_allow_html=True)
 
-    # SUBMENÚ (solo después del clic)
-    if st.session_state.menu_padre:
+    # SUBMENÚ
+    if st.session_state.mostrar_submenu:
 
-        if st.session_state.menu_hijo == "carga_mo":
+        if st.session_state.opcion_activa == "carga_mo":
             st.markdown(
                 "<div class='menu-activo'>Carga de MO</div>",
                 unsafe_allow_html=True
@@ -98,7 +94,7 @@ with st.sidebar:
         else:
             st.markdown("<div class='menu-btn'>", unsafe_allow_html=True)
             if st.button("Carga de MO", use_container_width=True):
-                st.session_state.menu_hijo = "carga_mo"
+                st.session_state.opcion_activa = "carga_mo"
             st.markdown("</div>", unsafe_allow_html=True)
 
 # --------------------------------------------------
@@ -109,7 +105,7 @@ st.title("Programa Mano de Obra")
 # --------------------------------------------------
 # CONTENIDO SOLO SI CARGA MO ESTÁ ACTIVO
 # --------------------------------------------------
-if st.session_state.menu_hijo == "carga_mo":
+if st.session_state.opcion_activa == "carga_mo":
 
     # ---------------------------
     # FILTROS
