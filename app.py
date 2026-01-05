@@ -90,13 +90,13 @@ with st.sidebar:
     )
 
     st.markdown("<div class='menu-btn'>", unsafe_allow_html=True)
-    if st.button("Gestión Agrícola", use_container_width=True):
+    if st.button("🌱 Gestión Agrícola", use_container_width=True):
         st.session_state.mostrar_submenu = True
     st.markdown("</div>", unsafe_allow_html=True)
 
     if st.session_state.mostrar_submenu:
 
-        if st.session_state.opcion_activa == "carga_mo":
+        if st.session_state.opcion_activa == "📄 carga_mo":
             st.markdown(
                 "<div class='menu-activo'>Carga de MO</div>",
                 unsafe_allow_html=True
