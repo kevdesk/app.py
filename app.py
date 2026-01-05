@@ -10,15 +10,6 @@ st.set_page_config(
 )
 
 # --------------------------------------------------
-# SESSION STATE
-# --------------------------------------------------
-if "menu_padre" not in st.session_state:
-    st.session_state.menu_padre = None
-
-if "menu_hijo" not in st.session_state:
-    st.session_state.menu_hijo = None
-
-# --------------------------------------------------
 # ESTILOS
 # --------------------------------------------------
 st.markdown("""
@@ -28,29 +19,31 @@ section[data-testid="stSidebar"] {
     background-color: #b11226;
 }
 
-/* Texto sidebar */
-section[data-testid="stSidebar"] * {
+/* Ocultar label del radio */
+div[data-testid="stRadio"] > label {
+    display: none;
+}
+
+/* Opciones del menú */
+div[data-testid="stRadio"] div[role="radiogroup"] > label {
+    background-color: transparent;
     color: white;
+    padding: 10px 12px;
+    margin-bottom: 6px;
+    border-radius: 6px;
+    cursor: pointer;
     font-weight: 600;
 }
 
-/* Item menú */
-.menu-item {
-    padding: 10px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    margin-bottom: 6px;
-}
-
 /* Hover */
-.menu-item:hover {
+div[data-testid="stRadio"] div[role="radiogroup"] > label:hover {
     background-color: rgba(255,255,255,0.15);
 }
 
-/* Submenú activo */
-.menu-activo {
+/* Seleccionado */
+div[data-testid="stRadio"] input:checked + div {
     background-color: #f4c430;
-    color: black !important;
+    color: black;
     font-weight: 700;
 }
 
@@ -77,27 +70,16 @@ section[data-testid="stSidebar"] * {
 """, unsafe_allow_html=True)
 
 # --------------------------------------------------
-# SIDEBAR - MENÚ NAVEGADOR
+# SIDEBAR - MENÚ NAVEGADOR REAL
 # --------------------------------------------------
 with st.sidebar:
-    st.markdown("## 📊 Menú")
+    st.markdown("## 🌱 Gestión Agrícola")
 
-    # Gestión Agrícola (único visible al inicio)
-    if st.button("🌱 Gestión Agrícola", use_container_width=True):
-        st.session_state.menu_padre = "gestion"
-        st.session_state.menu_hijo = None
-
-    # Submenú SOLO si se hizo clic
-    if st.session_state.menu_padre == "gestion":
-
-        if st.session_state.menu_hijo == "carga_mo":
-            st.markdown(
-                "<div class='menu-item menu-activo'>📄 Carga de MO</div>",
-                unsafe_allow_html=True
-            )
-        else:
-            if st.button("📄 Carga de MO", use_container_width=True):
-                st.session_state.menu_hijo = "carga_mo"
+    menu = st.radio(
+        "",
+        ["Carga de MO"],
+        key="menu_agricola"
+    )
 
 # --------------------------------------------------
 # CONTENIDO PRINCIPAL
@@ -107,7 +89,7 @@ st.title("Programa Mano de Obra")
 # --------------------------------------------------
 # MOSTRAR SOLO SI ES CARGA DE MO
 # --------------------------------------------------
-if st.session_state.menu_hijo == "carga_mo":
+if menu == "Carga de MO":
 
     # ---------------------------
     # FILTROS
@@ -179,6 +161,3 @@ if st.session_state.menu_hijo == "carga_mo":
 
     df = pd.DataFrame(data)
     st.dataframe(df, use_container_width=True)
-
-else:
-    st.info("Seleccione Gestión Agrícola para continuar")
