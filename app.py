@@ -28,6 +28,12 @@ section[data-testid="stSidebar"] {
     background-color: #c81d11;
 }
 
+/* Desactivar hover de botones Streamlit */
+.stButton > button:hover {
+    background-color: white !important;
+    color: black !important;
+}
+
 /* Botón blanco menú */
 .menu-btn button {
     background-color: white !important;
@@ -77,13 +83,13 @@ section[data-testid="stSidebar"] {
 with st.sidebar:
     st.markdown("### Menú")
 
-    # BOTÓN GESTIÓN AGRÍCOLA (siempre visible)
+    # Gestión Agrícola (solo muestra submenú)
     st.markdown("<div class='menu-btn'>", unsafe_allow_html=True)
     if st.button("Gestión Agrícola", use_container_width=True):
         st.session_state.mostrar_submenu = True
     st.markdown("</div>", unsafe_allow_html=True)
 
-    # SUBMENÚ
+    # Carga de MO (un solo clic: activa + pinta + muestra)
     if st.session_state.mostrar_submenu:
 
         if st.session_state.opcion_activa == "carga_mo":
