@@ -10,6 +10,15 @@ st.set_page_config(
 )
 
 # --------------------------------------------------
+# SESSION STATE
+# --------------------------------------------------
+if "menu_padre" not in st.session_state:
+    st.session_state.menu_padre = None
+
+if "menu_hijo" not in st.session_state:
+    st.session_state.menu_hijo = None
+
+# --------------------------------------------------
 # ESTILOS
 # --------------------------------------------------
 st.markdown("""
@@ -25,16 +34,27 @@ section[data-testid="stSidebar"] * {
     font-weight: 600;
 }
 
-/* Item activo */
+/* Item menú */
+.menu-item {
+    padding: 10px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-bottom: 6px;
+}
+
+/* Hover */
+.menu-item:hover {
+    background-color: rgba(255,255,255,0.15);
+}
+
+/* Submenú activo */
 .menu-activo {
     background-color: #f4c430;
-    padding: 10px;
-    border-radius: 6px;
     color: black !important;
     font-weight: 700;
 }
 
-/* Botones */
+/* Botones generales */
 .stButton > button {
     height: 38px;
     font-weight: 600;
@@ -57,26 +77,27 @@ section[data-testid="stSidebar"] * {
 """, unsafe_allow_html=True)
 
 # --------------------------------------------------
-# SESSION STATE
-# --------------------------------------------------
-if "menu" not in st.session_state:
-    st.session_state.menu = None
-
-# --------------------------------------------------
-# SIDEBAR - MENÚ
+# SIDEBAR - MENÚ NAVEGADOR
 # --------------------------------------------------
 with st.sidebar:
-    st.markdown("## 📊 Gestión Agrícola")
-    st.markdown("---")
+    st.markdown("## 📊 Menú")
 
+    # Gestión Agrícola (único visible al inicio)
     if st.button("🌱 Gestión Agrícola", use_container_width=True):
-        st.session_state.menu = "gestion"
+        st.session_state.menu_padre = "gestion"
+        st.session_state.menu_hijo = None
 
-    if st.session_state.menu == "gestion":
-        st.markdown("<div class='menu-activo'>📄 Carga de MO</div>", unsafe_allow_html=True)
-    else:
-        if st.button("📄 Carga de MO", use_container_width=True):
-            st.session_state.menu = "carga_mo"
+    # Submenú SOLO si se hizo clic
+    if st.session_state.menu_padre == "gestion":
+
+        if st.session_state.menu_hijo == "carga_mo":
+            st.markdown(
+                "<div class='menu-item menu-activo'>📄 Carga de MO</div>",
+                unsafe_allow_html=True
+            )
+        else:
+            if st.button("📄 Carga de MO", use_container_width=True):
+                st.session_state.menu_hijo = "carga_mo"
 
 # --------------------------------------------------
 # CONTENIDO PRINCIPAL
@@ -84,9 +105,9 @@ with st.sidebar:
 st.title("Programa Mano de Obra")
 
 # --------------------------------------------------
-# MOSTRAR SOLO SI ES CARGA MO
+# MOSTRAR SOLO SI ES CARGA DE MO
 # --------------------------------------------------
-if st.session_state.menu == "carga_mo":
+if st.session_state.menu_hijo == "carga_mo":
 
     # ---------------------------
     # FILTROS
@@ -160,4 +181,4 @@ if st.session_state.menu == "carga_mo":
     st.dataframe(df, use_container_width=True)
 
 else:
-    st.info("Seleccione una opción del menú para continuar")
+    st.info("Seleccione Gestión Agrícola para continuar")
