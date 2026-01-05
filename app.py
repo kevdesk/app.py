@@ -54,7 +54,6 @@ section[data-testid="stSidebar"] {
     color: black;
     padding: 10px 12px;
     border-radius: 6px;
-    font-weight: 700;
     margin-top: 6px;
 }
 
