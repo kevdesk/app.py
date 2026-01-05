@@ -178,11 +178,18 @@ if st.session_state.opcion_activa == "carga_mo":
     # MODAL IMPORTAR
     # ---------------------------
     if st.session_state.mostrar_importar:
-        with st.modal("Importar Programa MO"):
-            archivo = st.file_uploader(
-                "Seleccione la plantilla Excel",
-                type=["xlsx"]
-            )
+    st.markdown("### Importar Programa MO")
+
+    with st.container():
+        st.markdown(
+            "<div style='background:#f8f9fa; padding:20px; border-radius:8px; border:1px solid #ddd;'>",
+            unsafe_allow_html=True
+        )
+
+        archivo = st.file_uploader(
+            "Seleccione la plantilla Excel",
+            type=["xlsx"]
+        )
 
             if archivo is not None:
                 df_importado = pd.read_excel(archivo)
