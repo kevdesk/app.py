@@ -10,41 +10,47 @@ st.set_page_config(
 )
 
 # --------------------------------------------------
+# SESSION STATE
+# --------------------------------------------------
+if "menu_padre" not in st.session_state:
+    st.session_state.menu_padre = False
+
+if "menu_hijo" not in st.session_state:
+    st.session_state.menu_hijo = None
+
+# --------------------------------------------------
 # ESTILOS
 # --------------------------------------------------
 st.markdown("""
 <style>
-/* Sidebar rojo */
+/* Sidebar rojo corporativo */
 section[data-testid="stSidebar"] {
-    background-color: #b11226;
+    background-color: #c81d11;
 }
 
-/* Ocultar label del radio */
-div[data-testid="stRadio"] > label {
-    display: none;
-}
-
-/* Opciones del menú */
-div[data-testid="stRadio"] div[role="radiogroup"] > label {
-    background-color: transparent;
+/* Texto sidebar */
+section[data-testid="stSidebar"] * {
     color: white;
-    padding: 10px 12px;
-    margin-bottom: 6px;
-    border-radius: 6px;
-    cursor: pointer;
     font-weight: 600;
 }
 
-/* Hover */
-div[data-testid="stRadio"] div[role="radiogroup"] > label:hover {
-    background-color: rgba(255,255,255,0.15);
+/* Botón menú */
+.menu-btn button {
+    background-color: transparent !important;
+    border: none !important;
+    text-align: left;
+    font-size: 16px;
+    padding: 10px 12px;
 }
 
-/* Seleccionado */
-div[data-testid="stRadio"] input:checked + div {
+/* Submenú activo */
+.menu-activo {
     background-color: #f4c430;
-    color: black;
+    color: black !important;
+    padding: 10px 12px;
+    border-radius: 6px;
     font-weight: 700;
+    margin-left: 10px;
 }
 
 /* Botones generales */
@@ -55,14 +61,14 @@ div[data-testid="stRadio"] input:checked + div {
 
 /* Botón consultar */
 .consultar button {
-    background-color: #b11226;
+    background-color: #c81d11;
     color: white;
     border: none;
 }
 
 /* Botones acción */
 .accion button {
-    background-color: #b11226;
+    background-color: #c81d11;
     color: white;
     border: none;
 }
@@ -70,16 +76,30 @@ div[data-testid="stRadio"] input:checked + div {
 """, unsafe_allow_html=True)
 
 # --------------------------------------------------
-# SIDEBAR - MENÚ NAVEGADOR REAL
+# SIDEBAR - MENÚ NAVEGADOR
 # --------------------------------------------------
 with st.sidebar:
-    st.markdown("## 🌱 Gestión Agrícola")
+    st.markdown("## 🌱 Menú")
 
-    menu = st.radio(
-        "",
-        ["Carga de MO"],
-        key="menu_agricola"
-    )
+    # BOTÓN PADRE (siempre visible)
+    st.markdown("<div class='menu-btn'>", unsafe_allow_html=True)
+    if st.button("Gestión Agrícola", use_container_width=True):
+        st.session_state.menu_padre = True
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    # SUBMENÚ (solo después del clic)
+    if st.session_state.menu_padre:
+
+        if st.session_state.menu_hijo == "carga_mo":
+            st.markdown(
+                "<div class='menu-activo'>Carga de MO</div>",
+                unsafe_allow_html=True
+            )
+        else:
+            st.markdown("<div class='menu-btn'>", unsafe_allow_html=True)
+            if st.button("Carga de MO", use_container_width=True):
+                st.session_state.menu_hijo = "carga_mo"
+            st.markdown("</div>", unsafe_allow_html=True)
 
 # --------------------------------------------------
 # CONTENIDO PRINCIPAL
@@ -87,9 +107,9 @@ with st.sidebar:
 st.title("Programa Mano de Obra")
 
 # --------------------------------------------------
-# MOSTRAR SOLO SI ES CARGA DE MO
+# CONTENIDO SOLO SI CARGA MO ESTÁ ACTIVO
 # --------------------------------------------------
-if menu == "Carga de MO":
+if st.session_state.menu_hijo == "carga_mo":
 
     # ---------------------------
     # FILTROS
@@ -111,7 +131,7 @@ if menu == "Carga de MO":
     with f5:
         st.selectbox("Proceso", ["Cosecha", "Poda"])
 
-    f6, f7, f8, f9, f10 = st.columns(5)
+    f6, f7, f8, f9, _ = st.columns(5)
 
     with f6:
         st.selectbox("Año", ["2024", "2025"])
@@ -153,11 +173,13 @@ if menu == "Carga de MO":
     st.markdown("---")
     st.subheader("Detalle Programa MO")
 
-    data = {
+    df = pd.DataFrame({
         "Actividad": ["Cosecha", "Poda"],
         "Personal": [30, 15],
         "Horas": [8, 6]
-    }
+    })
 
-    df = pd.DataFrame(data)
     st.dataframe(df, use_container_width=True)
+
+else:
+    st.info("Seleccione Gestión Agrícola para comenzar")
