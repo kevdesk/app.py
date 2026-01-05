@@ -1,150 +1,214 @@
 import streamlit as st
 import pandas as pd
 
-st.set_page_config(page_title="Carga Programa MO Semanal", layout="wide")
+# --------------------------------------------------
+# CONFIGURACIÓN
+# --------------------------------------------------
+st.set_page_config(
+    page_title="Programa MO",
+    layout="wide"
+)
 
-# =========================
-# ESTILOS GENERALES
-# =========================
+# --------------------------------------------------
+# SESSION STATE
+# --------------------------------------------------
+if "mostrar_submenu" not in st.session_state:
+    st.session_state.mostrar_submenu = False
+
+if "opcion_activa" not in st.session_state:
+    st.session_state.opcion_activa = None
+
+if "mostrar_importar" not in st.session_state:
+    st.session_state.mostrar_importar = False
+
+# --------------------------------------------------
+# ESTILOS
+# --------------------------------------------------
 st.markdown("""
 <style>
-/* BOTONES GENERALES */
-.stButton>button {
+/* Sidebar rojo */
+section[data-testid="stSidebar"] {
+    background-color: #c81d11;
+}
+
+/* Quitar hover */
+.stButton > button:hover {
+    background-color: white !important;
+    color: black !important;
+}
+
+/* Botón blanco menú */
+.menu-btn button {
+    background-color: white !important;
+    color: black !important;
+    border-radius: 6px !important;
+    border: none !important;
+    font-weight: 600;
+    padding: 10px 12px;
+    text-align: left;
+}
+
+/* Item activo amarillo */
+.menu-activo {
+    background-color: #f4c430;
+    color: black;
+    padding: 10px 12px;
     border-radius: 6px;
-    height: 42px;
+    font-weight: 700;
+    margin-top: 6px;
+}
+
+/* Botones generales */
+.stButton > button {
+    height: 38px;
     font-weight: 600;
 }
 
-/* EXPORTAR */
-.btn-exportar button {
-    background-color: #6c757d;
+/* Botón consultar */
+.consultar button {
+    background-color: #c81d11;
     color: white;
+    border: none;
 }
 
-/* IMPORTAR */
-.btn-importar button {
-    background-color: #198754;
+/* Botones acción derecha */
+.accion button {
+    background-color: #c81d11;
     color: white;
-}
-
-/* AGREGAR */
-.btn-agregar button {
-    background-color: #0d6efd;
-    color: white;
-}
-
-/* BOTON CONSULTAR */
-.btn-consultar button {
-    background-color: #ffc107;
-    color: black;
-    font-weight: 700;
-}
-
-/* INPUTS */
-div[data-baseweb="select"] > div {
-    background-color: white;
+    border: none;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# =========================
-# SESSION STATE
-# =========================
-if "mostrar_importar" not in st.session_state:
-    st.session_state.mostrar_importar = False
+# --------------------------------------------------
+# SIDEBAR
+# --------------------------------------------------
+with st.sidebar:
+    st.markdown(
+        "<h3 style='color:white; font-weight:700;'>Danper</h3>",
+        unsafe_allow_html=True
+    )
 
-# =========================
-# TITULO
-# =========================
-st.title("Carga Programa MO Semanal")
+    st.markdown("<div class='menu-btn'>", unsafe_allow_html=True)
+    if st.button("Gestión Agrícola", use_container_width=True):
+        st.session_state.mostrar_submenu = True
+    st.markdown("</div>", unsafe_allow_html=True)
 
-# =========================
-# FILTROS + BOTONES
-# =========================
-st.markdown("### Filtros")
+    if st.session_state.mostrar_submenu:
 
-# fila principal
-f1, f2, f3, f4, f5, f6, f7, f8, espacio, b1, b2, b3 = st.columns(
-    [1.2,1.5,1.5,1.5,1.3,1,1,1.2,2,1,1,1.5]
-)
+        if st.session_state.opcion_activa == "carga_mo":
+            st.markdown(
+                "<div class='menu-activo'>Carga de MO</div>",
+                unsafe_allow_html=True
+            )
+        else:
+            st.markdown("<div class='menu-btn'>", unsafe_allow_html=True)
+            if st.button("Carga de MO", use_container_width=True):
+                st.session_state.opcion_activa = "carga_mo"
+            st.markdown("</div>", unsafe_allow_html=True)
 
-with f1:
-    sociedad = st.selectbox("Sociedad", ["DANPER TRUJILLO SAC"])
+# --------------------------------------------------
+# CONTENIDO PRINCIPAL
+# --------------------------------------------------
+st.title("Programa Mano de Obra")
 
-with f2:
-    unidad = st.selectbox("Unidad Agrícola", ["Compositan"])
+# --------------------------------------------------
+# CONTENIDO SOLO SI CARGA MO
+# --------------------------------------------------
+if st.session_state.opcion_activa == "carga_mo":
 
-with f3:
-    subunidad = st.selectbox("Sub Unidad Agrícola", ["Todas"])
+    # ---------------------------
+    # FILTROS
+    # ---------------------------
+    f1, f2, f3, f4, f5 = st.columns(5)
 
-with f4:
-    cultivo = st.selectbox("Tipo Cultivo", ["Espárrago", "Palta", "Arándano"])
+    with f1:
+        st.selectbox("Sociedad", ["DANPER TRUJILLO SAC"])
 
-with f5:
-    proceso = st.selectbox("Proceso", ["Cosecha", "Campo"])
+    with f2:
+        st.selectbox("Unidad Agrícola", ["Compositan"])
 
-with f6:
-    anio = st.selectbox("Año", [2024, 2025])
+    with f3:
+        st.selectbox("Sub Unidad Agrícola", ["Sector A", "Sector B"])
 
-with f7:
-    semana = st.selectbox("Semana", list(range(1, 53)))
+    with f4:
+        st.selectbox("Tipo Cultivo", ["Pimiento", "Arándano"])
 
-with f8:
-    tipo = st.selectbox("Tipo Proyección", ["Semanal", "Mensual"])
+    with f5:
+        st.selectbox("Proceso", ["Cosecha", "Poda"])
 
-# =========================
-# BOTON CONSULTAR
-# =========================
-st.markdown("")
-c1, _, _ = st.columns([1,8,3])
-with c1:
-    st.markdown('<div class="btn-consultar">', unsafe_allow_html=True)
-    consultar = st.button("🔍 Consultar")
-    st.markdown('</div>', unsafe_allow_html=True)
+    f6, f7, f8, f9, _ = st.columns(5)
 
-# =========================
-# BOTONES DERECHA
-# =========================
-with b1:
-    st.markdown('<div class="btn-exportar">', unsafe_allow_html=True)
-    st.button("📤 Exportar")
-    st.markdown('</div>', unsafe_allow_html=True)
+    with f6:
+        st.selectbox("Año", ["2024", "2025"])
 
-with b2:
-    st.markdown('<div class="btn-importar">', unsafe_allow_html=True)
-    if st.button("📥 Importar"):
-        st.session_state.mostrar_importar = True
-    st.markdown('</div>', unsafe_allow_html=True)
+    with f7:
+        st.selectbox("Semana", list(range(1, 53)), index=22)
 
-with b3:
-    st.markdown('<div class="btn-agregar">', unsafe_allow_html=True)
-    st.button("➕ Agregar actividades")
-    st.markdown('</div>', unsafe_allow_html=True)
+    with f8:
+        st.selectbox("Tipo Proyección", ["Programado", "Ejecutado"])
 
-# =========================
-# MODAL IMPORTAR
-# =========================
-if st.session_state.mostrar_importar:
-    with st.modal("Importar Programa MO"):
-        archivo = st.file_uploader(
-            "Seleccione la plantilla Excel",
-            type=["xlsx"]
-        )
+    with f9:
+        st.markdown("<div class='consultar'>", unsafe_allow_html=True)
+        st.button("🔍 Consultar")
+        st.markdown("</div>", unsafe_allow_html=True)
 
-        if archivo:
-            df = pd.read_excel(archivo)
-            st.success("Archivo cargado correctamente")
-            st.dataframe(df, use_container_width=True)
+    # ---------------------------
+    # BOTONES DERECHA
+    # ---------------------------
+    _, _, _, b1, b2, b3 = st.columns([5,5,5,1.3,1.5,2])
 
-            if st.button("Confirmar Importación"):
-                st.success("Programa importado con éxito")
+    with b1:
+        st.markdown("<div class='accion'>", unsafe_allow_html=True)
+        st.button("📤 Exportar")
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    with b2:
+        st.markdown("<div class='accion'>", unsafe_allow_html=True)
+        if st.button("📥 Importar"):
+            st.session_state.mostrar_importar = True
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    with b3:
+        st.markdown("<div class='accion'>", unsafe_allow_html=True)
+        st.button("➕ Agregar actividades")
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    # ---------------------------
+    # MODAL IMPORTAR
+    # ---------------------------
+    if st.session_state.mostrar_importar:
+        with st.modal("Importar Programa MO"):
+            archivo = st.file_uploader(
+                "Seleccione la plantilla Excel",
+                type=["xlsx"]
+            )
+
+            if archivo is not None:
+                df_importado = pd.read_excel(archivo)
+                st.success("Archivo cargado correctamente")
+                st.dataframe(df_importado, use_container_width=True)
+
+                if st.button("Confirmar Importación"):
+                    st.success("Programa importado con éxito")
+                    st.session_state.mostrar_importar = False
+
+            if st.button("Cancelar"):
                 st.session_state.mostrar_importar = False
 
-        if st.button("Cancelar"):
-            st.session_state.mostrar_importar = False
+    # ---------------------------
+    # TABLA
+    # ---------------------------
+    st.markdown("---")
+    st.subheader("Detalle Programa MO")
 
-# =========================
-# RESULTADO CONSULTA
-# =========================
-if consultar:
-    st.info("Consulta ejecutada con los filtros seleccionados")
+    df = pd.DataFrame({
+        "Actividad": ["Cosecha", "Poda"],
+        "Personal": [30, 15],
+        "Horas": [8, 6]
+    })
+
+    st.dataframe(df, use_container_width=True)
+
+else:
+    st.info("Seleccione Gestión Agrícola para comenzar")
