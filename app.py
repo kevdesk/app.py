@@ -81,8 +81,10 @@ section[data-testid="stSidebar"] {
 # SIDEBAR - MENÚ
 # --------------------------------------------------
 with st.sidebar:
-    st.markdown("#Danper")
-    {color: white}
+    st.markdown(
+        "<h3 style='color:white; font-weight:700;'>Danper</h3>",
+        unsafe_allow_html=True
+    )    
     # Gestión Agrícola (solo muestra submenú)
     st.markdown("<div class='menu-btn'>", unsafe_allow_html=True)
     if st.button("Gestión Agrícola", use_container_width=True):
