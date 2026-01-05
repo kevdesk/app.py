@@ -2,23 +2,19 @@ import streamlit as st
 import pandas as pd
 
 # --------------------------------------------------
-# CONFIGURACIÓN GENERAL
+# CONFIGURACIÓN
 # --------------------------------------------------
 st.set_page_config(
-    page_title="Carga Programa MO Semanal",
+    page_title="Programa MO",
     layout="wide"
 )
 
 # --------------------------------------------------
-# ESTILOS (COLORES + PANEL IZQUIERDO)
+# ESTILOS
 # --------------------------------------------------
 st.markdown("""
 <style>
-/* Ocultar menú Streamlit */
-#MainMenu {visibility: hidden;}
-footer {visibility: hidden;}
-
-/* Panel izquierdo rojo */
+/* Sidebar rojo */
 section[data-testid="stSidebar"] {
     background-color: #b11226;
 }
@@ -29,115 +25,139 @@ section[data-testid="stSidebar"] * {
     font-weight: 600;
 }
 
+/* Item activo */
+.menu-activo {
+    background-color: #f4c430;
+    padding: 10px;
+    border-radius: 6px;
+    color: black !important;
+    font-weight: 700;
+}
+
 /* Botones */
 .stButton > button {
     height: 38px;
-    border-radius: 6px;
     font-weight: 600;
 }
 
-/* Botones principales */
-div[data-testid="column"] button {
+/* Botón consultar */
+.consultar button {
     background-color: #b11226;
     color: white;
     border: none;
 }
 
-/* Tabla */
-thead tr th {
-    background-color: #f0f0f0;
+/* Botones acción */
+.accion button {
+    background-color: #b11226;
+    color: white;
+    border: none;
 }
 </style>
 """, unsafe_allow_html=True)
 
 # --------------------------------------------------
-# SIDEBAR (PANEL IZQUIERDO)
+# SESSION STATE
+# --------------------------------------------------
+if "menu" not in st.session_state:
+    st.session_state.menu = None
+
+# --------------------------------------------------
+# SIDEBAR - MENÚ
 # --------------------------------------------------
 with st.sidebar:
-    st.markdown("## 📋 Programa MO")
+    st.markdown("## 📊 Gestión Agrícola")
     st.markdown("---")
 
-    st.selectbox("Sociedad", ["DANPER TRUJILLO SAC"])
-    st.selectbox("Unidad Agrícola", ["Compositan"])
-    st.selectbox("Cultivo", ["Pimiento", "Arándano"])
-    st.selectbox("Semana", list(range(1, 53)), index=22)
-    st.selectbox("Año", ["2024", "2025"])
+    if st.button("🌱 Gestión Agrícola", use_container_width=True):
+        st.session_state.menu = "gestion"
+
+    if st.session_state.menu == "gestion":
+        st.markdown("<div class='menu-activo'>📄 Carga de MO</div>", unsafe_allow_html=True)
+    else:
+        if st.button("📄 Carga de MO", use_container_width=True):
+            st.session_state.menu = "carga_mo"
 
 # --------------------------------------------------
 # CONTENIDO PRINCIPAL
 # --------------------------------------------------
-st.title("Carga Programa MO Semanal")
+st.title("Programa Mano de Obra")
 
-# ---------------------------
-# FILTROS SUPERIORES (COMO IMAGEN)
-# ---------------------------
-f1, f2, f3, f4, f5 = st.columns(5)
+# --------------------------------------------------
+# MOSTRAR SOLO SI ES CARGA MO
+# --------------------------------------------------
+if st.session_state.menu == "carga_mo":
 
-with f1:
-    st.selectbox("Sociedad", ["DANPER TRUJILLO SAC"])
+    # ---------------------------
+    # FILTROS
+    # ---------------------------
+    f1, f2, f3, f4, f5 = st.columns(5)
 
-with f2:
-    st.selectbox("Unidad Agrícola", ["Compositan"])
+    with f1:
+        st.selectbox("Sociedad", ["DANPER TRUJILLO SAC"])
 
-with f3:
-    st.selectbox("Cultivo", ["Pimiento", "Arándano"])
+    with f2:
+        st.selectbox("Unidad Agrícola", ["Compositan"])
 
-with f4:
-    st.selectbox("Semana", list(range(1, 53)), index=22)
+    with f3:
+        st.selectbox("Sub Unidad Agrícola", ["Sector A", "Sector B"])
 
-with f5:
-    st.selectbox("Año", ["2024", "2025"])
+    with f4:
+        st.selectbox("Tipo Cultivo", ["Pimiento", "Arándano"])
 
-# ---------------------------
-# BOTONES A LA DERECHA
-# ---------------------------
-_, _, _, _, _, b1, b2, b3, b4 = st.columns([3,3,3,3,3,1,1,1.2,1.8])
+    with f5:
+        st.selectbox("Proceso", ["Cosecha", "Poda"])
 
-with b1:
-    st.button("📤 Exportar")
+    f6, f7, f8, f9, f10 = st.columns(5)
 
-with b2:
-    if st.button("📥 Importar"):
-        st.session_state["importar"] = True
+    with f6:
+        st.selectbox("Año", ["2024", "2025"])
 
-with b3:
-    st.button("💾 Guardar")
+    with f7:
+        st.selectbox("Semana", list(range(1, 53)), index=22)
 
-with b4:
-    st.button("➕ Agregar actividades")
+    with f8:
+        st.selectbox("Tipo Proyección", ["Programado", "Ejecutado"])
 
-# ---------------------------
-# MODAL / IMPORTACIÓN
-# ---------------------------
-if st.session_state.get("importar", False):
-    with st.expander("📥 Importar Programa MO", expanded=True):
-        archivo = st.file_uploader(
-            "Selecciona la plantilla Excel",
-            type=["xlsx"]
-        )
+    with f9:
+        st.markdown("<div class='consultar'>", unsafe_allow_html=True)
+        st.button("🔍 Consultar")
+        st.markdown("</div>", unsafe_allow_html=True)
 
-        if archivo:
-            try:
-                df = pd.read_excel(archivo)
-                st.success("Archivo cargado correctamente")
-                st.dataframe(df, use_container_width=True)
-            except:
-                st.error("Error al leer el archivo")
+    # ---------------------------
+    # BOTONES DERECHA
+    # ---------------------------
+    _, _, _, b1, b2, b3 = st.columns([5,5,5,1.3,1.5,2])
 
-        if st.button("Cerrar"):
-            st.session_state["importar"] = False
+    with b1:
+        st.markdown("<div class='accion'>", unsafe_allow_html=True)
+        st.button("📤 Exportar")
+        st.markdown("</div>", unsafe_allow_html=True)
 
-# ---------------------------
-# TABLA PRINCIPAL
-# ---------------------------
-st.markdown("---")
-st.subheader("Detalle del Programa")
+    with b2:
+        st.markdown("<div class='accion'>", unsafe_allow_html=True)
+        st.button("📥 Importar")
+        st.markdown("</div>", unsafe_allow_html=True)
 
-data = {
-    "Actividad": ["Cosecha", "Poda"],
-    "Personal Programado": [25, 10],
-    "Horas": [8, 6]
-}
+    with b3:
+        st.markdown("<div class='accion'>", unsafe_allow_html=True)
+        st.button("➕ Agregar actividades")
+        st.markdown("</div>", unsafe_allow_html=True)
 
-df = pd.DataFrame(data)
-st.dataframe(df, use_container_width=True)
+    # ---------------------------
+    # TABLA
+    # ---------------------------
+    st.markdown("---")
+    st.subheader("Detalle Programa MO")
+
+    data = {
+        "Actividad": ["Cosecha", "Poda"],
+        "Personal": [30, 15],
+        "Horas": [8, 6]
+    }
+
+    df = pd.DataFrame(data)
+    st.dataframe(df, use_container_width=True)
+
+else:
+    st.info("Seleccione una opción del menú para continuar")
