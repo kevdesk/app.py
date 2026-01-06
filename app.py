@@ -173,10 +173,11 @@ if st.session_state.opcion_activa == "carga_mo":
         st.button("➕ Agregar actividades")
         st.markdown("</div>", unsafe_allow_html=True)
 
-    # ---------------------------
-    # MODAL IMPORTAR
-    # ---------------------------
-    if st.session_state.mostrar_importar:
+# ---------------------------
+# PANEL IMPORTAR
+# ---------------------------
+if st.session_state.mostrar_importar:
+
     st.markdown("### Importar Programa MO")
 
     with st.container():
@@ -190,17 +191,20 @@ if st.session_state.opcion_activa == "carga_mo":
             type=["xlsx"]
         )
 
-            if archivo is not None:
-                df_importado = pd.read_excel(archivo)
-                st.success("Archivo cargado correctamente")
-                st.dataframe(df_importado, use_container_width=True)
+        if archivo is not None:
+            df_importado = pd.read_excel(archivo)
+            st.success("Archivo cargado correctamente")
+            st.dataframe(df_importado, use_container_width=True)
 
-                if st.button("Confirmar Importación"):
-                    st.success("Programa importado con éxito")
-                    st.session_state.mostrar_importar = False
-
-            if st.button("Cancelar"):
+            if st.button("Confirmar Importación"):
+                st.success("Programa importado con éxito")
                 st.session_state.mostrar_importar = False
+
+        if st.button("Cancelar"):
+            st.session_state.mostrar_importar = False
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
 
     # ---------------------------
     # TABLA
